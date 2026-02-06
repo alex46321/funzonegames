@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FunZone – Creative Games</title>
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+    }
+    header {
+      padding: 40px 20px;
+      text-align: center;
+      background: rgba(0,0,0,0.35);
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+    }
+    nav a {
+      padding: 10px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      background: #fff;
+      color: #222;
+      font-weight: bold;
+    }
+    .container { max-width: 1000px; margin: auto; padding: 20px; }
+    section {
+      margin: 80px 0;
+      background: rgba(255,255,255,0.12);
+      padding: 30px;
+      border-radius: 20px;
+    }
+
+    .sentence span { font-size: 22px; }
+    .correct { color: #7CFF7C; }
+    .wrong { color: #FF6B6B; }
+
+    .space {
+      position: relative;
+      height: 320px;
+      background: radial-gradient(circle at center, #222, #000);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .planet { position: absolute; border-radius: 50%; }
+
+    .elements button {
+      margin: 6px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .sandbox {
+      margin-top: 15px;
+      min-height: 70px;
+      background: rgba(0,0,0,0.35);
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+<header id="home">
+  <h1>🧪🌌 FunZone Labs</h1>
+  <p>Scroll, explore, and experiment</p>
+</header>
+
+<nav>
+  <a href="#typing">Typing</a>
+  <a href="#solar">Solar</a>
+  <a href="#elements">Elements</a>
+  <a href="#reaction">Reaction</a>
+  <a href="#pixel">Pixel Art</a>
+</nav>
+
+<div class="container">
+
+<section id="typing">
+  <h2>⌨️ Typing Game</h2>
+  <div class="sentence" id="sentence"></div>
+  <input id="typingInput" placeholder="Start typing..." />
+</section>
+
+<section id="solar">
+  <h2>🌌 Solar System Maker</h2>
+  <select id="planetType">
+    <option value="mercury">Mercury</option>
+    <option value="earth">Earth</option>
+    <option value="gas">Gas Giant</option>
+    <option value="ice">Ice Planet</option>
+  </select>
+  <button onclick="addPlanet()">Add Planet</button>
+  <div class="space" id="space"></div>
+</section>
+
+<section id="elements">
+  <h2>🧪 Element Sandbox</h2>
+  <div class="elements" id="elementButtons"></div>
+  <div class="sandbox" id="sandbox"></div>
+</section>
+
+<section id="reaction">
+  <h2>⚡ Reaction Time</h2>
+  <p id="reactionText">Click when it turns green</p>
+  <button onclick="startReaction()">Click</button>
+  <button onclick="stopReaction()">Stop</button>
+</section>
+
+<section id="pixel">
+  <h2>🎨 Pixel Painter</h2>
+  <input type="color" id="color" />
+  <div id="grid"></div>
+</section>
+
+</div>
+
+<script>
+// Typing game
+const sentences = [
+  'The galaxy is full of mysteries.',
+  'Fire and water can create steam.',
+  'Planets orbit around stars.',
+  'Coding games is really fun.'
+];
+let sentence = '';
+let index = 0;
+const sentenceEl = document.getElementById('sentence');
+const typingInput = document.getElementById('typingInput');
+function newSentence() {
+  sentence = sentences[Math.floor(Math.random()*sentences.length)];
+  index = 0;
+  sentenceEl.innerHTML = '';
+  sentence.split('').forEach(c => {
+    const span = document.createElement('span');
+    span.textContent = c;
+    sentenceEl.appendChild(span);
+  });
+  typingInput.value = '';
+}
+newSentence();
+typingInput.addEventListener('input', () => {
+  const chars = sentenceEl.children;
+  [...chars].forEach((span, i) => {
+    if (typingInput.value[i] == null) span.className = '';
+    else if (typingInput.value[i] === span.textContent) span.className = 'correct';
+    else span.className = 'wrong';
+  });
+  if (typingInput.value === sentence) newSentence();
+});
+
+// Solar system
+function addPlanet() {
+  const type = document.getElementById('planetType').value;
+  const planet = document.createElement('div');
+  const styles = { mercury: { size: 10, color: '#aaa' }, earth: { size: 18, color: '#2ecc71' }, gas: { size: 30, color: '#f39c12' }, ice: { size: 22, color: '#5dade2' } };
+  planet.className = 'planet';
+  planet.style.width = styles[type].size + 'px';
+  planet.style.height = styles[type].size + 'px';
+  planet.style.background = styles[type].color;
+  planet.style.left = Math.random()*90 + '%';
+  planet.style.top = Math.random()*90 + '%';
+  document.getElementById('space').appendChild(planet);
+}
+
+// Element sandbox
+const sandbox = document.getElementById('sandbox');
+const buttonsEl = document.getElementById('elementButtons');
+let stack = [];
+const discovered = new Set(['🔥 Fire','💧 Water','🌱 Earth','🌬️ Air']);
+const combos = { '🔥 Fire+💧 Water':'🌫️ Steam', '💧 Water+🌱 Earth':'🌿 Mud', '🔥 Fire+🌱 Earth':'🌋 Lava' };
+function renderButtons() { buttonsEl.innerHTML = ''; discovered.forEach(e => { const b = document.createElement('button'); b.textContent = e; b.onclick = () => addElement(e); buttonsEl.appendChild(b); }); }
+function addElement(e) { if (stack.length) { const last = stack.pop(); const r = combos[last+'+'+e] || combos[e+'+'+last]; if (r) { stack.push(r); discovered.add(r); renderButtons(); } } else stack.push(e); sandbox.textContent = stack.join(' '); }
+renderButtons();
+
+// Reaction game
+let startTime; let reactionTimeout; let waiting = false;
+function startReaction() { const t = document.getElementById('reactionText'); t.style.color = 'white'; t.textContent = 'Wait...'; t.onclick = null; waiting = true; reactionTimeout = setTimeout(() => { if (!waiting) return; startTime = Date.now(); t.style.color = 'lime'; t.textContent = 'CLICK!'; t.onclick = () => { t.textContent = 'Time: ' + (Date.now() - startTime) + 'ms'; t.onclick = null; waiting = false; }; }, Math.random() * 3000 + 1000); }
+function stopReaction() { const t = document.getElementById('reactionText'); clearTimeout(reactionTimeout); waiting = false; t.style.color = 'white'; t.textContent = 'Stopped ⛔'; t.onclick = null; }
+
+// Pixel painter
+const grid = document.getElementById('grid'); for (let i=0;i<100;i++){ const p=document.createElement('div'); p.style.width='20px';p.style.height='20px';p.style.display='inline-block'; p.style.border='1px solid #333'; p.onclick=()=>p.style.background=document.getElementById('color').value; grid.appendChild(p); }
+</script>
+</body>
+</html>
